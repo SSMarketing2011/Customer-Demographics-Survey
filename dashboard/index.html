@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Survey Dashboard</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <header class="hero">
+        <p class="eyebrow">Internal dashboard</p>
+        <h1>Customer Survey Metrics</h1>
+        <p class="hero-copy">Live metrics from survey submissions saved to Google Sheets.</p>
+      </header>
+
+      <section class="panel filter-panel">
+        <h2>Visualization Filters</h2>
+        <p class="panel-copy">Apply filters to all cards, breakdowns, and charts below.</p>
+
+        <form id="view-filter-form" class="metric-form">
+          <button type="button" class="filter-launch" data-filter-key="visitType">
+            <span class="filter-launch-label">Visit type</span>
+            <span id="view-visit-summary" class="filter-launch-summary">Any</span>
+          </button>
+
+          <button type="button" class="filter-launch" data-filter-key="gender">
+            <span class="filter-launch-label">Gender</span>
+            <span id="view-gender-summary" class="filter-launch-summary">Any</span>
+          </button>
+
+          <button type="button" class="filter-launch" data-filter-key="ageGroup">
+            <span class="filter-launch-label">Age group</span>
+            <span id="view-age-summary" class="filter-launch-summary">Any</span>
+          </button>
+
+          <button type="button" class="filter-launch" data-filter-key="optIn">
+            <span class="filter-launch-label">Email opt-in</span>
+            <span id="view-optin-summary" class="filter-launch-summary">Any</span>
+          </button>
+
+          <label>
+            Question contains
+            <input name="questionContains" type="text" placeholder="Example: brought you in" />
+          </label>
+
+          <label>
+            Answer contains
+            <input name="answerContains" type="text" placeholder="Example: training" />
+          </label>
+
+          <label>
+            Date range
+            <select name="datePreset" id="view-date-preset">
+              <option value="all">All time</option>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+
+          <div id="custom-date-range-fields" class="custom-date-range" hidden>
+            <label>
+              Date from
+              <input name="dateFrom" id="view-date-from" type="date" />
+            </label>
+
+            <label>
+              Date to
+              <input name="dateTo" id="view-date-to" type="date" />
+            </label>
+          </div>
+
+          <button type="submit">Apply filters</button>
+          <button type="button" id="clear-view-filters" class="ghost-button">Clear filters</button>
+        </form>
+
+        <div class="preset-row">
+          <label>
+            Save current view
+            <input id="preset-name-input" type="text" placeholder="Example: First-time female 35-44" />
+          </label>
+          <button id="save-preset-button" type="button" class="ui-button ui-button--primary">Save view</button>
+          <label>
+            Saved views
+            <select id="preset-select"></select>
+          </label>
+          <button id="apply-preset-button" type="button" class="ui-button ui-button--ghost">Apply</button>
+          <button id="delete-preset-button" type="button" class="ui-button ui-button--ghost">Delete</button>
+        </div>
+
+        <div class="display-controls" id="display-controls">
+          <p class="display-controls-title">Displayed on dashboard</p>
+          <label class="display-toggle"><input type="checkbox" data-toggle-panel="kpis" checked /> KPI cards</label>
+          <label class="display-toggle"><input type="checkbox" data-toggle-panel="breakdownAge" checked /> Age bento</label>
+          <label class="display-toggle"><input type="checkbox" data-toggle-panel="breakdownVisit" checked /> Visit bento</label>
+          <label class="display-toggle"><input type="checkbox" data-toggle-panel="dataQuality" /> Data quality snapshot</label>
+          <label class="display-toggle"><input type="checkbox" data-toggle-panel="charts" checked /> Charts</label>
+        </div>
+
+        <p id="view-filter-summary" class="filter-summary">Showing all submissions.</p>
+      </section>
+
+      <div id="filter-modal" class="filter-modal" hidden>
+        <div class="filter-modal-backdrop" data-close-filter-modal="true"></div>
+        <div class="filter-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="filter-modal-title">
+          <div class="filter-modal-header">
+            <h3 id="filter-modal-title">Filter options</h3>
+            <button id="filter-modal-close" class="filter-modal-close" type="button" aria-label="Close filter modal">×</button>
+          </div>
+          <div id="filter-modal-options" class="filter-modal-options"></div>
+          <div class="filter-modal-actions">
+            <button id="filter-modal-clear" type="button" class="ui-button ui-button--ghost">Clear all</button>
+            <button id="filter-modal-save" type="button" class="ui-button ui-button--primary">Save selection</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="kpi-grid" id="kpi-grid" data-panel-key="kpis"></section>
+
+      <section class="panel" data-panel-key="dataQuality">
+        <h2>Data Quality Snapshot</h2>
+        <div id="data-quality-breakdown"></div>
+      </section>
+
+      <section class="panel-grid">
+        <article class="panel" data-panel-key="breakdownAge">
+          <h2>Submissions by Age Group</h2>
+          <div id="age-breakdown"></div>
+        </article>
+
+        <article class="panel" data-panel-key="breakdownVisit">
+          <h2>First-Time vs Returning</h2>
+          <div id="visit-breakdown"></div>
+        </article>
+      </section>
+
+      <section class="panel-grid chart-grid" data-panel-key="charts">
+        <article class="panel chart-panel">
+          <h2>Gender Mix</h2>
+          <canvas id="gender-pie-chart" aria-label="Gender mix pie chart" role="img"></canvas>
+          <p id="gender-chart-note" class="chart-note"></p>
+        </article>
+
+        <article class="panel chart-panel">
+          <h2>Age Group Distribution</h2>
+          <canvas id="age-bar-chart" aria-label="Age group bar chart" role="img"></canvas>
+        </article>
+
+        <article class="panel chart-panel">
+          <h2>Visit Type Share</h2>
+          <canvas id="visit-doughnut-chart" aria-label="Visit type doughnut chart" role="img"></canvas>
+        </article>
+
+        <article class="panel chart-panel chart-panel--wide">
+          <h2>Submission Trend</h2>
+          <canvas id="trend-line-chart" aria-label="Submission trend line chart" role="img"></canvas>
+        </article>
+      </section>
+
+      <p class="footnote" id="load-status">Loading survey data...</p>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
