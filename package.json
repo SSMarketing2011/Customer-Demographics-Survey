@@ -1,0 +1,16 @@
+{
+  "name": "customer-receipt-survey",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static customer survey with Netlify Functions and Google Sheets submission.",
+  "scripts": {
+    "dev": "netlify dev",
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "googleapis": "^150.0.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.36.1"
+  }
+}
