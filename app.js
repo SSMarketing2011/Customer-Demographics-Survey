@@ -1376,10 +1376,8 @@ function renderResult() {
     <div class="result-panel">
       <div class="result-meta">
         <span class="meta-pill">Survey completed</span>
-        <span class="meta-pill">${escapeHtml(getSubmissionMetaLabel())}</span>
       </div>
       <p class="result-copy">${finalAnswer ? `Final response recorded: ${escapeHtml(getDisplayNodeText(finalAnswer))}` : 'Your responses have been recorded.'}</p>
-      ${getSubmissionStatusMarkup()}
     </div>
 
     <div class="summary-grid">
